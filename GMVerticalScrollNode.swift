@@ -34,6 +34,12 @@ class GMVerticalScrollNode: SKNode {
         super.addChild(_cropper)
     }
     
+    var isScrolling:Bool {
+        get {
+            return self._cropper.isScrolling
+        }
+    }
+    
     func validate() {
         self._cropper.validate()
     }
@@ -132,12 +138,14 @@ private class _GMCropper:SKCropNode {
     }
     
     override private func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        self.parent?.touchesEnded(touches, withEvent: event)
         if !isScrolling {
             return
         }
         
         let action = SKAction.customActionWithDuration(1, actionBlock: self.inert)
         group.runAction(action)
+        
     }
     
     func _slideToEnd(node:SKNode, time:CGFloat) {
