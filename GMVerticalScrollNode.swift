@@ -38,6 +38,11 @@ class GMVerticalScrollNode: SKNode {
         self._cropper.validate()
     }
     
+    func resetScrollToTop() {
+        self._cropper.validate()
+        self._cropper.resetScrollToTop()
+    }
+    
     
     
     
@@ -88,6 +93,12 @@ private class _GMCropper:SKCropNode {
         group.removeAllActions()
         let action = SKAction.customActionWithDuration(1, actionBlock: self.inert)
         group.runAction(action)
+    }
+    
+    func resetScrollToTop() {
+        let rect = group.calculateAccumulatedFrame()
+        group.removeAllActions()
+        group.position.y += (self._size.height - rect.maxY)
     }
     
     //  MARK: TouchHandlers
