@@ -135,6 +135,23 @@ private class _GMCropper:SKCropNode {
         scrollPos2 = pos
         
         group.position.y = pos.y - touchPos.x
+        let rect = group.calculateAccumulatedFrame()
+        if rect.height > self._size.height {
+            if rect.minY > 0 {
+                group.position.y += (0 - rect.minY) / 2
+            }
+            
+            if rect.maxY < self._size.height {
+                group.position.y += (self._size.height - rect.maxY) / 2
+            }
+        } else {
+            if rect.maxY < self._size.height {
+                group.position.y += (self._size.height - rect.maxY) / 2
+            }
+            if rect.maxY > self._size.height {
+                group.position.y += (self._size.height - rect.maxY) / 2
+            }
+        }
     }
     
     override private func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
@@ -148,31 +165,31 @@ private class _GMCropper:SKCropNode {
         
     }
     
-    func _slideToEnd(node:SKNode, time:CGFloat) {
+    func _slideToEnd(node:SKNode, time:CGFloat) -> Bool {
         let rect = node.calculateAccumulatedFrame()
         if rect.height < self._size.height {
-            return
+            return false
         }
         if rect.minY < 0 {
-            return
+            return false
         }
         
-//        node.removeAllActions()
         node.position.y += (0 - rect.minY) * time
+        return true
     }
     
-    func _slideToTop(node:SKNode, time:CGFloat) {
+    func _slideToTop(node:SKNode, time:CGFloat) -> Bool {
         let rect = node.calculateAccumulatedFrame()
         if rect.height < self._size.height {
             node.position.y += (self._size.height - rect.maxY) * time
-            return
+            return true
         }
         if rect.maxY > self._size.height {
-            return
+            return false
         }
         
-//        node.removeAllActions()
         node.position.y += (self._size.height - rect.maxY) * time
+        return true
     }
     
     func _inert(node:SKNode, time:CGFloat) {
@@ -187,8 +204,13 @@ private class _GMCropper:SKCropNode {
     }
     
     func inert(node:SKNode, time:CGFloat) {
-        _slideToTop(node, time: time)
-        _slideToEnd(node, time: time)
+        if _slideToTop(node, time: time) {
+            return
+        }
+        if _slideToEnd(node, time: time) {
+            return
+        }
+        
         _inert(node, time: time)
     }
 
